@@ -1,0 +1,8 @@
+{
+  "name": "todo-list",
+  "description": "Todo List 管理技能，支持自然语言添加/查看/完成/删除待办，含今日待办、全部未完成两个命令，操作后自动发送钉钉通知。仅在创建/编辑技能时加载 skill-env-vars，日常开发不触发",
+  "author": {
+    "name": "LaiYongBin",
+    "email": ""
+  }
+}
