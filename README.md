@@ -33,12 +33,12 @@ cp ~/Desktop/todo-list-plugin/scripts/todo_manager.py ~/.claude/scripts/
 ## 所需环境变量
 
 ```bash
-# MySQL（参见 skill-env-vars）
-export LYB_SKILL_MYSQL_ADDRESS=
-export LYB_SKILL_MYSQL_PORT=3306
-export LYB_SKILL_MYSQL_USERNAME=
-export LYB_SKILL_MYSQL_PASSWORD=
-export LYB_SKILL_MYSQL_MY_PERSONAL_DATABASE=
+# PostgreSQL（参见 skill-env-vars）
+export LYB_SKILL_PG_ADDRESS=
+export LYB_SKILL_PG_PORT=5432
+export LYB_SKILL_PG_USERNAME=
+export LYB_SKILL_PG_PASSWORD=
+export LYB_SKILL_PG_MY_PERSONAL_DATABASE=
 
 # 钉钉机器人（参见 skill-env-vars）
 export LYB_SKILL_ALIYUN_ROBOT_ADDRESS=   # Webhook 完整 URL（含 access_token）
@@ -48,5 +48,5 @@ export LYB_SKILL_ALIYUN_ROBOT_SECRET=    # 签名密钥
 ## 依赖
 
 ```bash
-pip install mysql-connector-python
+pip install "psycopg[binary]"
 ```

@@ -94,11 +94,11 @@ python3 ~/.claude/scripts/todo_manager.py delete {id} "{title}"
 
 | 变量名 | 用途 |
 |--------|------|
-| `LYB_SKILL_MYSQL_ADDRESS` | MySQL 地址 |
-| `LYB_SKILL_MYSQL_PORT` | MySQL 端口 |
-| `LYB_SKILL_MYSQL_USERNAME` | MySQL 用户名 |
-| `LYB_SKILL_MYSQL_PASSWORD` | MySQL 密码 |
-| `LYB_SKILL_MYSQL_MY_PERSONAL_DATABASE` | 个人数据库名 |
+| `LYB_SKILL_PG_ADDRESS` | PostgreSQL 地址 |
+| `LYB_SKILL_PG_PORT` | PostgreSQL 端口 |
+| `LYB_SKILL_PG_USERNAME` | PostgreSQL 用户名 |
+| `LYB_SKILL_PG_PASSWORD` | PostgreSQL 密码 |
+| `LYB_SKILL_PG_MY_PERSONAL_DATABASE` | 个人数据库名 |
 | `LYB_SKILL_ALIYUN_ROBOT_ADDRESS` | 钉钉机器人 Webhook 地址 |
 | `LYB_SKILL_ALIYUN_ROBOT_SECRET` | 钉钉机器人签名密钥 |
 

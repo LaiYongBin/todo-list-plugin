@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
-"""Todo List Manager — MySQL CRUD + DingTalk notifications"""
+"""Todo List Manager - PostgreSQL CRUD + DingTalk notifications."""
 
-import os, sys, json, time, hmac, hashlib, base64
-import urllib.parse, urllib.request
-from datetime import date
+import base64
+import hashlib
+import hmac
+import json
+import os
+import sys
+import time
+import urllib.parse
+import urllib.request
 
 # ── 环境变量 ──────────────────────────────────────────────
-DB_HOST   = os.environ['LYB_SKILL_MYSQL_ADDRESS']
-DB_PORT   = int(os.environ.get('LYB_SKILL_MYSQL_PORT', '3306'))
-DB_USER   = os.environ['LYB_SKILL_MYSQL_USERNAME']
-DB_PASS   = os.environ['LYB_SKILL_MYSQL_PASSWORD']
-DB_NAME   = os.environ['LYB_SKILL_MYSQL_MY_PERSONAL_DATABASE']
+DB_HOST   = os.environ['LYB_SKILL_PG_ADDRESS']
+DB_PORT   = int(os.environ.get('LYB_SKILL_PG_PORT', '5432'))
+DB_USER   = os.environ['LYB_SKILL_PG_USERNAME']
+DB_PASS   = os.environ['LYB_SKILL_PG_PASSWORD']
+DB_NAME   = os.environ['LYB_SKILL_PG_MY_PERSONAL_DATABASE']
 DT_URL    = os.environ['LYB_SKILL_ALIYUN_ROBOT_ADDRESS']
 DT_SECRET = os.environ['LYB_SKILL_ALIYUN_ROBOT_SECRET']
 
@@ -18,11 +24,13 @@ USER_ID = 1  # 个人使用，固定 user_id
 
 # ── 数据库 ───────────────────────────────────────────────
 def get_conn():
-    import mysql.connector
-    return mysql.connector.connect(
+    import psycopg
+    from psycopg.rows import dict_row
+
+    return psycopg.connect(
         host=DB_HOST, port=DB_PORT,
         user=DB_USER, password=DB_PASS,
-        database=DB_NAME, charset='utf8mb4'
+        database=DB_NAME, row_factory=dict_row
     )
 
 # ── 钉钉通知 ─────────────────────────────────────────────
@@ -52,10 +60,10 @@ def _fmt(idx, row):
     return f"{idx}. {mark} {row['title']}{due}"
 
 def _today_summary(conn):
-    cur = conn.cursor(dictionary=True)
+    cur = conn.cursor()
     cur.execute("""
         SELECT id, title, status, due_time FROM todo_list
-        WHERE user_id=%s AND is_deleted=0 AND DATE(create_time)=CURDATE()
+        WHERE user_id=%s AND is_deleted=0 AND create_time::date = CURRENT_DATE
         ORDER BY status ASC, priority DESC, id ASC
     """, (USER_ID,))
     rows = cur.fetchall(); cur.close()
@@ -67,10 +75,10 @@ def _today_summary(conn):
 # ── 命令实现 ─────────────────────────────────────────────
 def cmd_list_today():
     conn = get_conn()
-    cur  = conn.cursor(dictionary=True)
+    cur  = conn.cursor()
     cur.execute("""
         SELECT id, title, status, due_time, finished_at FROM todo_list
-        WHERE user_id=%s AND is_deleted=0 AND DATE(create_time)=CURDATE()
+        WHERE user_id=%s AND is_deleted=0 AND create_time::date = CURRENT_DATE
         ORDER BY status ASC, priority DESC, id ASC
     """, (USER_ID,))
     rows = cur.fetchall(); cur.close(); conn.close()
@@ -78,7 +86,7 @@ def cmd_list_today():
 
 def cmd_list_all():
     conn = get_conn()
-    cur  = conn.cursor(dictionary=True)
+    cur  = conn.cursor()
     cur.execute("""
         SELECT id, title, status, due_time, finished_at FROM todo_list
         WHERE user_id=%s AND is_deleted=0 AND status != 2
@@ -93,9 +101,10 @@ def cmd_add(title, due_date=None):
     cur.execute("""
         INSERT INTO todo_list (user_id, title, status, priority, due_time)
         VALUES (%s, %s, 0, 1, %s)
+        RETURNING id
     """, (USER_ID, title, due_date))
+    todo_id = cur.fetchone()['id']
     conn.commit()
-    todo_id = cur.lastrowid
 
     md = f"## ✅ 已添加待办\n\n**{title}**"
     if due_date:
